@@ -169,7 +169,7 @@ function toast(msg, err) {
   clearTimeout(toastT); toastT = setTimeout(() => t.remove(), err ? 6000 : 3000);
 }
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbzVVqkYpHTA27XwDartrbhlAfSbvHk93v7ecRsHdxdD6_dgMvME5Cf8ZuThW0IbNAMo/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwgmA8S9LMVHcv_s3DwdBm320c6j8zBqgBwvzboW2JUPRqQ_6ZEeWIGGlWjw3x5cwsI/exec';
 async function call(action, p) {
   let r;
   try {
@@ -615,7 +615,8 @@ async function tEdit(id) {
         el('select', { onchange: e => { q.options = Number(e.target.value); drawQ(); } }, [4, 5].map(n => el('option', { value: n, selected: q.options === n }, n + ' хувилбар'))),
         el('select', { onchange: set('answer') }, el('option', { value: '' }, 'Зөв хариу…'),
           'ABCDE'.slice(0, q.options).split('').map(L => el('option', { value: L, selected: q.answer === L }, L))));
-      else sub = el('div', { class: 'sub mut small', style: 'padding-top:9px' }, 'Сурагч бодолтын зураг илгээнэ, та гараар дүгнэнэ.');
+      else sub = el('div', null, el('div', { class: 'mut small', style: 'padding-top:9px' }, 'Сурагч бодолтын зураг илгээнэ. AI санал болгож, та батална.'),
+        el('textarea', { value: q.rubric || '', placeholder: 'AI-д зориулсан зөв бодолт / шалгуур (заавал биш). Жишээ: υ = S/t = 50/4 = 12.5 м/с. Томьёо зөв 1 оноо, тооцоо, нэгж зөв 1 оноо.', oninput: set('rubric'), style: 'min-height:60px;margin-top:6px' }));
       return el('div', { class: 'qedit' },
         el('div', { class: 'n' }, i + 1), typeSel,
         el('input', { type: 'number', min: 0.5, step: 0.5, value: q.points, title: 'Оноо', oninput: set('points') }),
@@ -670,7 +671,7 @@ function cellFor(q, sub) {
   if (!sub) return el('td', { class: 'c mut' }, '·');
   const r = sub.per.find(x => x.id === q.id);
   const title = q.type === 'photo' ? `${r.images} зураг` : `Хариу: ${r.answer || '—'}`;
-  if (r.status === 'pending') return el('td', { class: 'c warn', title }, '📷');
+  if (r.status === 'pending') { const ai = sub.ai && sub.ai[q.id]; return el('td', { class: 'c warn', title: ai ? `AI санал: ${num(ai.pts)}/${num(r.max)}` : title }, ai ? '🤖' + num(ai.pts) : '📷'); }
   if (r.status === 'empty') return el('td', { class: 'c bad', title }, '—');
   if (r.status === 'graded') return el('td', { class: 'c ' + (r.pts >= r.max ? 'ok' : r.pts > 0 ? 'warn' : 'bad'), title }, num(r.pts));
   return el('td', { class: 'c ' + (r.status === 'correct' ? 'ok' : 'bad'), title }, r.status === 'correct' ? '✓' : '✗');
@@ -719,7 +720,7 @@ async function tReport(id) {
             el('td', { class: wrongPct[i] >= 50 ? 'bad' : '' }, wrongPct[i] === null ? '—' : wrongPct[i] + '%'),
             el('td', null, el('div', { class: 'bar' }, el('i', { style: `width:${wrongPct[i] || 0}%` })))))))),
       el('div', { class: 'card' }, el('h2', null, 'Сурагчдын дүн'),
-        el('p', { class: 'mut small' }, 'Мөр дээр дарж хариу, зургийг харж дүгнэнэ. ✓ зөв, ✗ буруу, 📷 шалгах зураг, тоо — багшийн өгсөн оноо.'),
+        el('p', { class: 'mut small' }, 'Мөр дээр дарж хариу, зургийг харж дүгнэнэ. ✓ зөв, ✗ буруу, 📷 шалгах зураг, 🤖 AI санал (батлаагүй), тоо — багшийн өгсөн оноо.'),
         el('div', { class: 'tbl' }, el('table', null,
           el('tr', null, el('th', null, '№'), el('th', null, 'Анги'), el('th', null, 'Нэр'), el('th', null, 'Төлөв'), el('th', null, 'Илгээсэн'),
             qs.map((q, i) => el('th', { class: 'c' }, i + 1)), el('th', { class: 'c' }, 'Нийт')),
@@ -764,6 +765,14 @@ async function tReport(id) {
         el('div', { class: 'mut small' }, `${classes.join(', ')} · Хугацаа: ${fmt(A.due)} · Дүн харуулах: ${fbName[A.feedback]}`,
           A.status === 'draft' ? el('span', { class: 'tag', style: 'margin-left:6px' }, 'Ноорог — сурагчдад харагдахгүй') : null)),
       fsel,
+      el('button', { class: 'btn', onclick: async e => {
+        const b = e.currentTarget; b.disabled = true; b.textContent = '🤖 Шалгаж байна…';
+        try {
+          const r = await run(() => call('tAiCheckAll', { id }));
+          toast(`AI ${r.done} бодолт шалгалаа` + (r.error ? ' · ' + r.error : '') + (r.left ? ' · үлдсэнийг дахин дарж шалгана' : ''), !!r.error);
+          tReport(id);
+        } catch (err) { b.disabled = false; b.textContent = '🤖 AI-аар шалгах'; }
+      } }, '🤖 AI-аар шалгах'),
       el('button', { class: 'btn', onclick: exportXlsx }, '⬇ Excel'),
       el('button', { class: 'btn', onclick: () => go('tEdit', id) }, 'Засах'),
       el('button', { class: 'btn danger', onclick: async () => {
@@ -791,7 +800,14 @@ function gradeModal(A, st, s, after) {
         const ph = el('span', { class: 'mut small' }, 'Ачааллаж байна…'); th.append(ph);
         call('tImage', { fileId: fid }).then(d => ph.replaceWith(el('img', { src: d, onclick: () => zoom(d) }))).catch(() => ph.textContent = 'Зураг ачааллагдсангүй');
       });
-      info = th;
+      const ai = s.ai && s.ai[q.id];
+      info = el('div', null, th, ai ? el('div', { class: 'small', style: 'margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--pri2)' },
+        el('b', null, `🤖 AI санал: ${num(ai.pts)} / ${num(q.points)}`), ai.readable === false ? el('span', { class: 'warn' }, ' · зураг уншигдсангүй') : null,
+        el('div', null, ai.comment),
+        el('button', { class: 'btn sm', style: 'margin-top:6px', type: 'button', onclick: () => {
+          inp.value = ai.pts;
+          if (ai.comment && !comment.value.includes(ai.comment)) comment.value = (comment.value ? comment.value + '\n' : '') + `${i + 1}-р бодлого: ` + ai.comment;
+        } }, 'Оруулах')) : null);
     } else {
       info = el('div', { class: 'small' }, 'Хариу: ', el('b', null, (r.answer || '—') + (q.unit && r.answer ? ' ' + q.unit : '')),
         ' · Зөв: ', q.answer + (q.unit ? ' ' + q.unit : ''), ' ',
@@ -814,6 +830,11 @@ function gradeModal(A, st, s, after) {
         await run(() => call('tGrade', { subId: s.id, manual, comment: comment.value }));
         toast('Хадгаллаа'); ov.remove(); after();
       } }, 'Хадгалах'),
+      A.questions.some(q => q.type === 'photo') ? el('button', { class: 'btn', onclick: async e => {
+        const b = e.currentTarget; b.disabled = true; b.textContent = '🤖 Шалгаж байна…';
+        try { const r = await run(() => call('tAiCheck', { subId: s.id })); toast(r.done ? `AI ${r.done} бодолт шалгалаа` : 'Шалгах шинэ зураг алга'); ov.remove(); after(); }
+        catch (err) { b.disabled = false; b.textContent = '🤖 AI-аар шалгах'; }
+      } }, '🤖 AI-аар шалгах') : null,
       s.attempts >= A.maxAttempts ? el('button', { class: 'btn', onclick: async () => {
         await run(() => call('tExtraAttempt', { subId: s.id })); toast('Дахин илгээх нэг эрх нэмлээ'); ov.remove(); after();
       } }, '+1 илгээх эрх') : null));
@@ -975,6 +996,23 @@ async function tStudents() {
     el('div', { class: 'card' }, el('h2', null, 'Ангиуд'), fwrap, el('div', { style: 'height:10px' }), tbl));
 }
 
+function aiCard() {
+  const box = el('div', { class: 'card', style: 'max-width:620px' }, el('h2', null, '🤖 AI туслах шалгагч (Gemini)'), el('p', { class: 'mut small' }, 'Ачааллаж байна…'));
+  call('tAiStatus').then(st => {
+    const k = el('input', { type: 'password', placeholder: st.configured ? 'Шинэ түлхүүрээр солих бол энд бичнэ' : 'AIza… гэж эхэлсэн түлхүүрээ буулгана', autocomplete: 'off' });
+    const b = el('button', { class: 'btn pri', style: 'margin-top:10px', onclick: async () => {
+      b.disabled = true; b.textContent = 'Шалгаж байна…';
+      try { await run(() => call('tSetAiKey', { key: k.value })); toast('AI түлхүүр хадгалагдлаа'); tSettings(); }
+      catch (e) { b.disabled = false; b.textContent = 'Хадгалах'; }
+    } }, 'Хадгалах');
+    box.replaceChildren(el('h2', null, '🤖 AI туслах шалгагч (Gemini)'),
+      el('p', { class: st.configured ? 'ok' : 'mut' }, st.configured ? `Идэвхтэй · ${st.masked} · ${st.model}` : 'Тохируулаагүй'),
+      el('p', { class: 'mut small' }, 'aistudio.google.com → Get API key-ээс авсан түлхүүрээ энд оруулна. Түлхүүр зөвхөн таны Apps Script-д хадгалагдана. AI-д зөвхөн бодолтын зураг, бодлого, шалгуур илгээгдэнэ — сурагчийн нэр илгээгдэхгүй. AI-ийн санал болгосон оноог та батлах хүртэл сурагчид харагдахгүй.'),
+      el('label', null, 'Gemini API түлхүүр'), k, b,
+      st.configured ? el('button', { class: 'btn sm danger', style: 'margin:10px 0 0 8px', onclick: async () => { await run(() => call('tSetAiKey', { key: '' })); toast('Түлхүүр устгагдлаа'); tSettings(); } }, 'Түлхүүр устгах') : null);
+  }).catch(e => box.lastChild.textContent = e.message);
+  return box;
+}
 function tSettings() {
   const o = el('input', { type: 'password' }), n = el('input', { type: 'password' }), n2 = el('input', { type: 'password' });
   mount(el('h1', null, 'Тохиргоо'),
@@ -984,6 +1022,7 @@ function tSettings() {
         if (n.value !== n2.value) return toast('Шинэ нууц үг таарахгүй байна', true);
         await run(() => call('tChangePassword', { old: o.value, nw: n.value })); toast('Нууц үг солигдлоо'); o.value = n.value = n2.value = '';
       } }, 'Солих')),
+    aiCard(),
     el('div', { class: 'card' }, el('h2', null, 'Өгөгдөл'),
       el('p', { class: 'mut' }, 'Бүх өгөгдөл таны Google Drive дээрх «Гэрийн даалгаврын өгөгдөл» хүснэгтэд, сурагчдын зураг болон хичээлийн файл «Гэрийн даалгаврын систем — файлууд» хавтаст хадгалагдана. Хүснэгтийн баганыг гараар өөрчлөхгүй байхыг зөвлөе.')));
 }
