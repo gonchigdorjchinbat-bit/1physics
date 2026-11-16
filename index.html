@@ -936,7 +936,7 @@ function credsModal(list, title) {
     const rows = [['Анги', 'Нэр', 'Нэвтрэх нэр', 'Сурагчийн нууц үг', 'Эцэг эхийн код'], ...list.map(x => [x.class, x.name, x.username, x.password || '', x.parentCode || ''])];
     if (window.XLSX) { const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), 'Нэвтрэх'); XLSX.writeFile(wb, 'Нэвтрэх мэдээлэл.xlsx'); }
   };
-  const url = (list[0] && list[0].appUrl) || '';
+  const url = location.host || '1physics.vercel.app';
   const ov = modal(
     el('div', { class: 'row noprint' }, el('h2', { class: 'grow', style: 'margin:0' }, title),
       el('button', { class: 'btn sm', onclick: doPrint }, '🖨 Хуудас хэвлэх'),
@@ -948,7 +948,7 @@ function credsModal(list, title) {
       'Нэвтрэх нэр: ', el('code', null, x.username), el('br'),
       x.password ? ['Сурагчийн нууц үг: ', el('code', null, x.password), el('br')] : null,
       x.parentCode ? ['Эцэг эхийн код: ', el('code', null, x.parentCode)] : null,
-      url ? el('div', { class: 'small mut', style: 'margin-top:4px;word-break:break-all' }, url) : null))));
+      url ? el('div', { style: 'margin-top:6px' }, 'Хаяг: ', el('b', null, url)) : null))));
   return ov;
 }
 
