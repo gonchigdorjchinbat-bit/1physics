@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Гэрийн даалгавар — 1-р сургууль</title>
+<script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+  :root{--bg:#f4f6f9;--card:#fff;--ink:#1c2430;--mut:#667085;--line:#e3e7ee;--pri:#1f5fbf;--pri2:#e8f0fc;
+        --ok:#1a7f45;--okbg:#e5f5ec;--bad:#b42318;--badbg:#fdecea;--warn:#a15c00;--warnbg:#fff3dc;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+  header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+  .hwrap{max-width:1100px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .brand{font-weight:700;font-size:16px;margin-right:auto}
+  .brand small{display:block;font-weight:400;color:var(--mut);font-size:12px}
+  nav{display:flex;gap:4px;flex-wrap:wrap}
+  nav button{background:none;border:0;padding:8px 12px;border-radius:8px;font:inherit;color:var(--mut);cursor:pointer}
+  nav button.on{background:var(--pri2);color:var(--pri);font-weight:600}
+  main{max-width:1100px;margin:0 auto;padding:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+  h1{font-size:21px;margin:4px 0 12px} h2{font-size:17px;margin:0 0 10px} h3{font-size:15px;margin:0 0 6px}
+  .mut{color:var(--mut)} .small{font-size:13px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .grow{flex:1 1 200px}
+  label{display:block;font-size:13px;color:var(--mut);margin:8px 0 4px}
+  input,select,textarea{font:inherit;padding:9px 10px;border:1px solid #cdd4df;border-radius:8px;width:100%;background:#fff;color:var(--ink)}
+  textarea{min-height:90px;resize:vertical}
+  input[type=checkbox],input[type=radio]{width:auto}
+  .btn{font:inherit;border:1px solid #cdd4df;background:#fff;color:var(--ink);padding:9px 14px;border-radius:8px;cursor:pointer;white-space:nowrap}
+  .btn.pri{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:600}
+  .btn.danger{color:var(--bad);border-color:#f1b8b3}
+  .btn.sm{padding:5px 9px;font-size:13px}
+  .btn:disabled{opacity:.55;cursor:default}
+  .list .item{display:flex;gap:12px;align-items:center;padding:12px 4px;border-top:1px solid var(--line);cursor:pointer}
+  .list .item:first-child{border-top:0}
+  .list .item:hover{background:#fafbfd}
+  .tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600;background:#eef1f5;color:var(--mut);white-space:nowrap}
+  .tag.ok{background:var(--okbg);color:var(--ok)} .tag.bad{background:var(--badbg);color:var(--bad)}
+  .tag.warn{background:var(--warnbg);color:var(--warn)} .tag.pri{background:var(--pri2);color:var(--pri)}
+  .tabs{display:flex;gap:6px;margin-bottom:12px}
+  .tabs button{flex:1;padding:9px;border:1px solid var(--line);background:#fff;border-radius:8px;font:inherit;cursor:pointer}
+  .tabs button.on{border-color:var(--pri);background:var(--pri2);color:var(--pri);font-weight:600}
+  .login{max-width:400px;margin:40px auto}
+  .q{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+  .q .qh{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px;font-weight:600}
+  .qtext{white-space:pre-wrap;margin:0 0 8px}
+  .mc{display:flex;gap:8px;flex-wrap:wrap}
+  .mc label{margin:0;display:flex;align-items:center;justify-content:center;width:52px;height:44px;border:1px solid #cdd4df;border-radius:8px;font-size:16px;font-weight:700;color:var(--ink);cursor:pointer}
+  .mc input{display:none}
+  .mc label:has(input:checked){background:var(--pri);border-color:var(--pri);color:#fff}
+  .numin{display:flex;gap:8px;align-items:center;max-width:320px}
+  .thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .thumbs img{width:96px;height:96px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:zoom-in}
+  .stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+  .stat div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+  .stat b{display:block;font-size:22px}
+  .tbl{overflow:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+  th{background:#f8f9fb;font-weight:600;position:sticky;top:0}
+  td.c,th.c{text-align:center}
+  tr.click{cursor:pointer} tr.click:hover td{background:#fafbfd}
+  .ok{color:var(--ok);font-weight:700} .bad{color:var(--bad);font-weight:700} .warn{color:var(--warn);font-weight:700}
+  .bar{height:8px;background:#eef1f5;border-radius:99px;overflow:hidden;min-width:40px}
+  .bar i{display:block;height:100%;background:var(--bad)}
+  .qedit{display:grid;grid-template-columns:34px 120px 80px 1fr auto;gap:8px;align-items:start;padding:10px 0;border-top:1px solid var(--line)}
+  .qedit .n{font-weight:700;padding-top:9px}
+  .qedit .sub{display:flex;gap:8px;flex-wrap:wrap}
+  .qedit .sub>*{flex:1 1 110px}
+  @media(max-width:700px){.qhead{display:none}.qedit{grid-template-columns:28px 1fr 70px}.qedit .wide{grid-column:1/-1}.qedit .del{grid-column:3}}
+  .overlay{position:fixed;inset:0;background:rgba(20,26,36,.5);z-index:20;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 12px}
+  .modal{background:#fff;border-radius:14px;max-width:760px;width:100%;padding:18px}
+  .zoom{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:30;display:flex;align-items:center;justify-content:center;cursor:zoom-out}
+  .zoom img{max-width:96vw;max-height:94vh}
+  .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#1c2430;color:#fff;padding:10px 16px;border-radius:10px;z-index:40;max-width:90vw}
+  .toast.err{background:var(--bad)}
+  .spin{padding:30px;text-align:center;color:var(--mut)}
+  .video{position:relative;padding-top:56.25%;margin:10px 0;border-radius:10px;overflow:hidden;background:#000}
+  .video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .content{white-space:pre-wrap}
+  .creds td{font-family:ui-monospace,Menlo,Consolas,monospace}
+  .slips{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .slip{border:1px dashed #999;padding:10px;border-radius:6px;font-size:14px;break-inside:avoid}
+  .slip code{font-size:15px;font-weight:700}
+  @media print{
+    body{background:#fff} header,.noprint,.toast{display:none!important}
+    .overlay{position:static;background:none;padding:0;display:block}
+    .modal{max-width:none;padding:0}
+    body.printing main{display:none}
+  }
+</style>
+</head>
+<body>
+<header class="noprint"><div class="hwrap">
+  <div class="brand">Гэрийн даалгавар<small id="who"></small></div>
+  <nav id="nav"></nav>
+</div></header>
+<main id="app"><div class="spin">Ачааллаж байна…</div></main>
+
+<script>
+/* ═════════════ Туслах функцууд ═════════════ */
+const S = { token: null, role: null, me: null, view: null, cache: {} };
+try { const s = JSON.parse(localStorage.getItem('hw_session') || 'null'); if (s) Object.assign(S, s); } catch (e) {}
+function saveSession() {
+  try { localStorage.setItem('hw_session', JSON.stringify({ token: S.token, role: S.role, me: S.me })); } catch (e) {}
+}
+
+function el(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  if (attrs) for (const k in attrs) {
+    const v = attrs[k];
+    if (v === null || v === undefined || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'style') e.style.cssText = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else if (k === 'value') e.value = v;
+    else if (k === 'checked' || k === 'disabled' || k === 'selected') e[k] = !!v;
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  kids.flat(9).forEach(k => { if (k === null || k === undefined || k === false) return; e.append(k.nodeType ? k : String(k)); });
+  return e;
+}
+const $ = id => document.getElementById(id);
+function mount(...nodes) { const a = $('app'); a.replaceChildren(...nodes.flat(9).filter(Boolean)); window.scrollTo(0, 0); }
+function loading() { mount(el('div', { class: 'spin' }, 'Ачааллаж байна…')); }
+
+let toastT;
+function toast(msg, err) {
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  const t = el('div', { class: 'toast' + (err ? ' err' : '') }, msg);
+  document.body.append(t);
+  clearTimeout(toastT); toastT = setTimeout(() => t.remove(), err ? 6000 : 3000);
+}
+
+const API_URL = 'https://script.google.com/macros/s/AKfycbzVVqkYpHTA27XwDartrbhlAfSbvHk93v7ecRsHdxdD6_dgMvME5Cf8ZuThW0IbNAMo/exec';
+async function call(action, p) {
+  let r;
+  try {
+    const res = await fetch(API_URL, { method: 'POST', redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action, token: S.token, p: p || {} }) });
+    r = await res.json();
+  } catch (e) { throw new Error('Сервертэй холбогдож чадсангүй. Интернэтээ шалгаад дахин оролдоно уу.'); }
+  if (r && r.ok) return r.data;
+  if (r && r.error === 'SESSION') { doLogout(true); toast(r.message, true); throw new Error(r.message); }
+  throw new Error((r && r.message) || 'Алдаа гарлаа');
+}
+async function run(fn) { try { return await fn(); } catch (e) { toast(e.message, true); throw e; } }
+
+const pad = n => String(n).padStart(2, '0');
+function fmt(ms) {
+  if (!ms) return '—';
+  const d = new Date(Number(ms));
+  return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function fmtDate(ms) { const d = new Date(Number(ms)); return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}`; }
+function toLocalInput(ms) { const d = new Date(Number(ms)); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function toDateInput(ms) { return toLocalInput(ms).slice(0, 10); }
+function left(ms) {
+  const d = Number(ms) - Date.now();
+  if (d <= 0) return 'хугацаа дууссан';
+  const h = Math.floor(d / 3600000);
+  if (h >= 48) return Math.floor(h / 24) + ' хоног үлдсэн';
+  if (h >= 1) return h + ' цаг үлдсэн';
+  return Math.max(1, Math.floor(d / 60000)) + ' минут үлдсэн';
+}
+const typeName = { num: 'Тоон', mc: 'Сонгох', photo: 'Зураг' };
+const fbName = { immediate: 'Илгээмэгц', afterDue: 'Хугацаа дууссаны дараа', never: 'Харуулахгүй' };
+function num(x) { return x === null || x === undefined ? '—' : String(Math.round(x * 100) / 100); }
+
+function modal(...kids) {
+  const ov = el('div', { class: 'overlay', onclick: e => { if (e.target === ov) ov.remove(); } }, el('div', { class: 'modal' }, ...kids));
+  document.body.append(ov);
+  return ov;
+}
+function zoom(src) { const z = el('div', { class: 'zoom', onclick: () => z.remove() }, el('img', { src })); document.body.append(z); }
+
+function resizeImage(file, max = 1600, q = 0.82) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      let w = img.naturalWidth, h = img.naturalHeight; const k = Math.min(1, max / Math.max(w, h));
+      w = Math.round(w * k); h = Math.round(h * k);
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', q));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Зургийг уншиж чадсангүй: ' + file.name)); };
+    img.src = url;
+  });
+}
+function readDataUrl(file) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(new Error('Файл уншиж чадсангүй')); r.readAsDataURL(file); });
+}
+function dataUrlToBlobUrl(d) {
+  const [h, b] = d.split(','); const mime = h.match(/data:([^;]+)/)[1];
+  const bin = atob(b); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+  return URL.createObjectURL(new Blob([u], { type: mime }));
+}
+function youtubeId(url) {
+  const m = String(url).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/);
+  return m ? m[1] : null;
+}
+function safeUrl(u) { return /^https?:\/\//i.test(u) ? u : null; }
+
+/* ═════════════ Навигаци ═════════════ */
+const NAV = {
+  student: [['sList', 'Даалгавар'], ['sLessons', 'Хичээл нөхөх'], ['logout', 'Гарах']],
+  parent: [['pHome', 'Хүүхдийн явц'], ['logout', 'Гарах']],
+  teacher: [['tAssignments', 'Даалгавар'], ['tLessons', 'Хичээл'], ['tStudents', 'Сурагчид'], ['tSettings', 'Тохиргоо'], ['logout', 'Гарах']],
+};
+function renderNav(active) {
+  const n = $('nav'); n.replaceChildren();
+  $('who').textContent = !S.role ? '' :
+    S.role === 'teacher' ? 'Багшийн самбар' :
+    S.role === 'parent' ? `Эцэг эх · ${S.me.name} (${S.me.class})` : `${S.me.name} · ${S.me.class}`;
+  (NAV[S.role] || []).forEach(([k, t]) => n.append(el('button', { class: k === active ? 'on' : '', onclick: () => k === 'logout' ? doLogout() : go(k) }, t)));
+}
+function go(view, arg) {
+  const ACTIVE = { sAssignment: 'sList', sLesson: 'sLessons', pDetail: 'pHome', tEdit: 'tAssignments', tReport: 'tAssignments', tLessonView: 'tLessons', tLessonEdit: 'tLessons' };
+  S.view = view; renderNav(ACTIVE[view] || view);
+  const f = VIEWS[view]; if (f) f(arg);
+}
+function doLogout(silent) {
+  if (!silent && S.token) call('logout').catch(() => {});
+  S.token = S.role = S.me = null; saveSession(); renderNav(); viewLogin();
+}
+
+/* ═════════════ Нэвтрэх ═════════════ */
+function viewTeacherInit() {
+  const p1 = el('input', { type: 'password', autocomplete: 'new-password' }), p2 = el('input', { type: 'password', autocomplete: 'new-password' });
+  const btn = el('button', { class: 'btn pri', style: 'width:100%;margin-top:14px', type: 'submit' }, 'Үүсгэх');
+  mount(el('div', { class: 'card login' }, el('h1', null, 'Систем бэлэн боллоо'),
+    el('p', { class: 'mut' }, 'Багшийн нууц үгээ үүсгэнэ үү (6+ тэмдэгт). Үүний дараа сурагчдаа нэмж эхэлнэ.'),
+    el('form', { onsubmit: async e => {
+      e.preventDefault();
+      if (p1.value !== p2.value) return toast('Нууц үг таарахгүй байна', true);
+      btn.disabled = true;
+      try { const r = await run(() => call('initTeacher', { password: p1.value }));
+        Object.assign(S, { token: r.token, role: r.role, me: r.me }); saveSession(); go('tStudents'); }
+      catch (err) { btn.disabled = false; }
+    } }, el('label', null, 'Нууц үг'), p1, el('label', null, 'Нууц үг (давтах)'), p2, btn)));
+}
+function viewLogin() {
+  let role = 'student';
+  const box = el('div');
+  const draw = () => {
+    const u = el('input', { autocomplete: 'username', autocapitalize: 'none', spellcheck: 'false' });
+    const p = el('input', { type: 'password', autocomplete: 'current-password', autocapitalize: 'none' });
+    const btn = el('button', { class: 'btn pri', style: 'width:100%;margin-top:14px', type: 'submit' }, 'Нэвтрэх');
+    const form = el('form', { onsubmit: async e => {
+      e.preventDefault(); btn.disabled = true;
+      try {
+        const r = await run(() => call('login', { role, username: u.value, password: p.value }));
+        Object.assign(S, { token: r.token, role: r.role, me: r.me }); saveSession(); start();
+      } catch (err) { btn.disabled = false; }
+    } },
+      role !== 'teacher' ? [el('label', null, role === 'parent' ? 'Хүүхдийн нэвтрэх нэр' : 'Нэвтрэх нэр'), u] : null,
+      el('label', null, role === 'parent' ? 'Эцэг эхийн код' : 'Нууц үг'), p, btn);
+    box.replaceChildren(
+      el('div', { class: 'tabs' }, [['student', 'Сурагч'], ['parent', 'Эцэг эх'], ['teacher', 'Багш']].map(([k, t]) =>
+        el('button', { class: role === k ? 'on' : '', type: 'button', onclick: () => { role = k; draw(); } }, t))),
+      form,
+      el('p', { class: 'mut small', style: 'margin-top:14px' },
+        role === 'parent' ? 'Эцэг эхийн кодыг багшаас авна. Энэ эрхээр зөвхөн хүүхдийнхээ явцыг харна.' :
+        role === 'student' ? 'Нэвтрэх нэр, нууц үгээ багшаасаа авна.' : ''));
+    setTimeout(() => (role === 'teacher' ? p : u).focus(), 50);
+  };
+  draw();
+  mount(el('div', { class: 'card login' }, el('h1', null, 'Нэвтрэх'), box));
+}
+
+/* ═════════════ СУРАГЧ ═════════════ */
+function statusTag(x) {
+  if (x.submitted) {
+    const t = [];
+    if (x.total !== null && x.total !== undefined) t.push(el('span', { class: 'tag pri' }, `${num(x.total)} / ${num(x.max)}` + (x.pending ? ' + шалгагдаж буй' : '')));
+    else t.push(el('span', { class: 'tag ok' }, 'Илгээсэн'));
+    if (x.late) t.push(el('span', { class: 'tag warn' }, 'Хоцорч илгээсэн'));
+    return t;
+  }
+  if (x.overdue) return el('span', { class: 'tag bad' }, x.allowLate ? 'Хугацаа хэтэрсэн' : 'Илгээгээгүй');
+  return el('span', { class: 'tag' }, left(x.due));
+}
+
+async function sList() {
+  loading();
+  const r = await run(() => call('sList'));
+  S.me = r.me; saveSession(); renderNav('sList');
+  const todo = r.items.filter(x => !x.submitted && !(x.overdue && !x.allowLate));
+  const rest = r.items.filter(x => !todo.includes(x));
+  const item = x => el('div', { class: 'item', onclick: () => go('sAssignment', x.id) },
+    el('div', { class: 'grow' }, el('b', null, x.title), el('div', { class: 'mut small' }, `Хугацаа: ${fmt(x.due)} · ${x.questionCount} бодлого`)),
+    el('div', { class: 'row', style: 'justify-content:flex-end' }, statusTag(x)));
+  mount(
+    el('h1', null, 'Миний даалгавар'),
+    el('div', { class: 'card' }, el('h2', null, `Хийх даалгавар (${todo.length})`),
+      todo.length ? el('div', { class: 'list' }, todo.map(item)) : el('p', { class: 'mut' }, 'Одоогоор хийх даалгавар алга. 👍')),
+    rest.length ? el('div', { class: 'card' }, el('h2', null, 'Өмнөх даалгавар'), el('div', { class: 'list' }, rest.map(item))) : null);
+}
+
+function resultBlock(q, r) {
+  if (!r) return null;
+  const parts = [];
+  if (r.status === 'correct') parts.push(el('span', { class: 'ok' }, `✓ Зөв · ${num(r.pts)}/${num(r.max)}`));
+  else if (r.status === 'wrong') parts.push(el('span', { class: 'bad' }, `✗ Буруу · 0/${num(r.max)}`));
+  else if (r.status === 'graded') parts.push(el('span', { class: r.pts >= r.max ? 'ok' : 'warn' }, `Багш дүгнэсэн · ${num(r.pts)}/${num(r.max)}`));
+  else if (r.status === 'pending') parts.push(el('span', { class: 'warn' }, 'Багш шалгаж байна'));
+  else if (r.status === 'empty') parts.push(el('span', { class: 'bad' }, 'Зураг илгээгээгүй · 0'));
+  if (r.key) parts.push(el('span', { class: 'mut' }, ` · Зөв хариу: ${r.key}`));
+  return parts.length ? el('div', { class: 'small', style: 'margin-top:8px' }, parts) : null;
+}
+
+function assignmentHeader(a, extra) {
+  return el('div', { class: 'card' },
+    el('h1', { style: 'margin-top:0' }, a.title),
+    el('div', { class: 'row small mut' },
+      el('span', null, `Хугацаа: ${fmt(a.due)} (${left(a.due)})`),
+      a.allowLate ? el('span', { class: 'tag' }, 'Хоцорч илгээж болно') : null,
+      a.maxAttempts > 1 ? el('span', { class: 'tag' }, `Илгээх эрх: ${a.maxAttempts - a.attempts}/${a.maxAttempts}`) : null),
+    a.description ? el('p', { class: 'content' }, a.description) : null,
+    safeUrl(a.link) ? el('p', null, el('a', { href: a.link, target: '_blank', rel: 'noopener' }, '📄 Даалгаврын материал нээх')) : null,
+    extra);
+}
+
+function resultSummary(res) {
+  if (!res) return null;
+  return el('div', { class: 'card', style: 'background:#f8fbff' },
+    el('div', { class: 'row' },
+      el('b', null, res.canSee ? `Оноо: ${num(res.total)} / ${num(res.max)}` : 'Илгээсэн ✓'),
+      res.pending && res.canSee ? el('span', { class: 'tag warn' }, `${res.pending} бодлого багш шалгаж байна`) : null,
+      res.late ? el('span', { class: 'tag warn' }, 'Хоцорч илгээсэн') : null,
+      el('span', { class: 'mut small' }, `Илгээсэн: ${fmt(res.submittedAt)}`)),
+    !res.canSee ? el('p', { class: 'mut small', style: 'margin:6px 0 0' }, 'Дүн хугацаа дууссаны дараа харагдана.') : null,
+    res.comment ? el('p', { style: 'margin:8px 0 0' }, el('b', null, 'Багшийн тайлбар: '), res.comment) : null);
+}
+
+async function sAssignment(id) {
+  loading();
+  const a = await run(() => call('sGet', { id }));
+  const res = a.result;
+  const per = {}; (res ? res.per : []).forEach(r => per[r.id] = r);
+  const inputs = {}, imgs = {};
+  const qs = a.questions.map((q, i) => {
+    const r = per[q.id]; const prev = r ? r.answer : '';
+    let body;
+    if (q.type === 'num') {
+      const inp = el('input', { inputmode: 'decimal', value: prev, placeholder: 'жишээ: 12.5 эсвэл 3.2e5', disabled: !a.canSubmit });
+      inputs[q.id] = inp;
+      body = el('div', { class: 'numin' }, inp, q.unit ? el("span", { style: "white-space:nowrap" }, q.unit) : null);
+    } else if (q.type === 'mc') {
+      const name = 'mc_' + q.id;
+      body = el('div', { class: 'mc' }, 'ABCDE'.slice(0, q.options).split('').map(L =>
+        el('label', null, el('input', { type: 'radio', name, value: L, checked: prev === L, disabled: !a.canSubmit }), L)));
+      inputs[q.id] = { get value() { const c = document.querySelector(`input[name="${name}"]:checked`); return c ? c.value : ''; } };
+    } else {
+      const th = el('div', { class: 'thumbs' });
+      imgs[q.id] = [];
+      const f = el('input', { type: 'file', accept: 'image/*', multiple: true, disabled: !a.canSubmit, onchange: async () => {
+        const files = [...f.files].slice(0, 4);
+        th.replaceChildren(el('span', { class: 'mut small' }, 'Зураг бэлтгэж байна…'));
+        try {
+          imgs[q.id] = await Promise.all(files.map(x => resizeImage(x)));
+          th.replaceChildren(...imgs[q.id].map(d => el('img', { src: d, onclick: () => zoom(d) })));
+        } catch (e) { toast(e.message, true); th.replaceChildren(); }
+      } });
+      body = el('div', null,
+        el('div', { class: 'small mut' }, r && r.images ? `Өмнө ${r.images} зураг илгээсэн. Шинээр сонговол солигдоно.` : 'Бодолтоо цаасан дээр бодоод зургийг нь авна уу (4 хүртэл зураг).'),
+        a.canSubmit ? f : null, th);
+    }
+    return el('div', { class: 'q' },
+      el('div', { class: 'qh' }, el('span', null, `${i + 1}-р бодлого`), el('span', { class: 'mut small' }, `${typeName[q.type]} · ${num(q.points)} оноо`)),
+      q.text ? el('p', { class: 'qtext' }, q.text) : null, body, resultBlock(q, r));
+  });
+  const btn = el('button', { class: 'btn pri' }, res ? 'Дахин илгээх' : 'Илгээх');
+  btn.onclick = async () => {
+    const answers = {}; let empty = 0;
+    a.questions.forEach(q => { if (q.type !== 'photo') { answers[q.id] = inputs[q.id].value.trim(); if (!answers[q.id]) empty++; } });
+    const images = {}; a.questions.forEach(q => { if (q.type === 'photo' && imgs[q.id].length) images[q.id] = imgs[q.id]; });
+    const noPhoto = a.questions.filter(q => q.type === 'photo' && !imgs[q.id].length && !(per[q.id] && per[q.id].images)).length;
+    let msg = 'Илгээх үү?';
+    if (empty || noPhoto) msg = `${empty ? empty + ' бодлогод хариу бичээгүй' : ''}${empty && noPhoto ? ', ' : ''}${noPhoto ? noPhoto + ' бодлогод зураг оруулаагүй' : ''} байна. Тэгсэн ч илгээх үү?`;
+    if (a.maxAttempts - a.attempts === 1) msg += '\n\nАнхааруулга: энэ бол таны сүүлийн илгээх эрх.';
+    if (!confirm(msg)) return;
+    btn.disabled = true; btn.textContent = 'Илгээж байна…';
+    try { await run(() => call('sSubmit', { id, answers, images })); toast('Амжилттай илгээлээ'); sAssignment(id); }
+    catch (e) { btn.disabled = false; btn.textContent = 'Илгээх'; }
+  };
+  mount(
+    el('p', { class: 'noprint' }, el('button', { class: 'btn sm', onclick: () => go('sList') }, '← Буцах')),
+    assignmentHeader(a), resultSummary(res),
+    el('div', { class: 'card' }, el('h2', null, 'Бодлогууд'),
+      el('p', { class: 'mut small' }, 'Тоон хариуг зөвхөн тоогоор, заасан нэгжээр бичнэ. Аравтын бутархайг цэгээр (2.5) бичнэ. Их, бага тоог 3.2e5 эсвэл 3.2*10^5 гэж бичиж болно.'),
+      qs,
+      a.canSubmit ? el('div', { class: 'row' }, btn) : el('p', { class: 'mut' }, a.reason)));
+}
+
+async function sLessons() {
+  loading();
+  const items = await run(() => call('sLessons'));
+  mount(el('h1', null, 'Хичээл нөхөх'),
+    el('div', { class: 'card' },
+      el('p', { class: 'mut small', style: 'margin-top:0' }, 'Тасалсан эсвэл дахин үзэх хичээлээ эндээс нээнэ.'),
+      items.length ? el('div', { class: 'list' }, items.map(l => el('div', { class: 'item', onclick: () => go('sLesson', l.id) },
+        el('div', { class: 'grow' }, el('b', null, l.title), el('div', { class: 'mut small' }, fmtDate(l.date) +
+          (l.links.length ? ` · ${l.links.length} холбоос` : '') + (l.files.length ? ` · ${l.files.length} файл` : ''))),
+        l.viewedAt ? el('span', { class: 'tag ok' }, 'Үзсэн') : el('span', { class: 'tag' }, 'Үзээгүй'))))
+        : el('p', { class: 'mut' }, 'Одоогоор нийтэлсэн хичээл алга.')));
+}
+
+function lessonBody(l, fileAction) {
+  const vids = [], others = [];
+  l.links.forEach(k => { const y = youtubeId(k.url); (y ? vids : others).push(Object.assign({ y }, k)); });
+  const fileRow = f => {
+    const slot = el('div');
+    const isImg = /^image\//.test(f.mime);
+    const b = el('button', { class: 'btn sm', onclick: async () => {
+      b.disabled = true; b.textContent = 'Ачааллаж байна…';
+      try {
+        const d = await run(() => call(fileAction, { lessonId: l.id, fileId: f.id }));
+        if (isImg) { slot.replaceChildren(el('img', { src: d.data, style: 'max-width:100%;border-radius:8px;margin-top:6px', onclick: () => zoom(d.data) })); b.remove(); }
+        else {
+          const u = dataUrlToBlobUrl(d.data);
+          slot.replaceChildren(el('a', { class: 'btn sm pri', href: u, download: f.name, target: '_blank' }, '⬇ ' + f.name + ' татах'));
+          b.remove();
+        }
+      } catch (e) { b.disabled = false; b.textContent = 'Дахин оролдох'; }
+    } }, isImg ? 'Зураг харах' : 'Файл бэлтгэх');
+    return el('div', { class: 'q' }, el('div', { class: 'row' }, el('span', { class: 'grow' }, '📎 ' + f.name,
+      el('span', { class: 'mut small' }, ` (${Math.round(f.size / 1024)} КБ)`)), b), slot);
+  };
+  return [
+    l.content ? el('div', { class: 'card content' }, l.content) : null,
+    vids.length ? el('div', { class: 'card' }, el('h2', null, 'Видео'), vids.map(v => [
+      v.title ? el('h3', null, v.title) : null,
+      el('div', { class: 'video' }, el('iframe', { src: 'https://www.youtube.com/embed/' + v.y, allowfullscreen: true, allow: 'encrypted-media; picture-in-picture' }))])) : null,
+    others.length ? el('div', { class: 'card' }, el('h2', null, 'Холбоос'), others.map(k =>
+      el('p', null, el('a', { href: k.url, target: '_blank', rel: 'noopener' }, '🔗 ' + (k.title || k.url))))) : null,
+    l.files.length ? el('div', { class: 'card' }, el('h2', null, 'Файл'), l.files.map(fileRow)) : null,
+  ];
+}
+
+async function sLesson(id) {
+  loading();
+  const l = await run(() => call('sLesson', { id }));
+  mount(el('p', null, el('button', { class: 'btn sm', onclick: () => go('sLessons') }, '← Буцах')),
+    el('h1', null, l.title), el('p', { class: 'mut' }, fmtDate(l.date)), lessonBody(l, 'sFile'));
+}
+
+/* ═════════════ ЭЦЭГ ЭХ ═════════════ */
+async function pHome() {
+  loading();
+  const r = await run(() => call('pOverview'));
+  const s = r.summary;
+  const avg = (() => {
+    const g = r.items.filter(x => x.submitted && x.total !== null && x.max && !x.pending);
+    if (!g.length) return '—';
+    return Math.round(g.reduce((a, x) => a + x.total / x.max, 0) / g.length * 100) + '%';
+  })();
+  mount(
+    el('h1', null, `${r.me.name} — ${r.me.class} анги`),
+    el('div', { class: 'stat' },
+      el('div', null, el('b', null, `${s.done}/${s.total}`), el('span', { class: 'mut small' }, 'Илгээсэн даалгавар')),
+      el('div', null, el('b', { class: s.missed ? 'bad' : '' }, s.missed), el('span', { class: 'mut small' }, 'Хугацаандаа илгээгээгүй')),
+      el('div', null, el('b', { class: s.late ? 'warn' : '' }, s.late), el('span', { class: 'mut small' }, 'Хоцорч илгээсэн')),
+      el('div', null, el('b', null, avg), el('span', { class: 'mut small' }, 'Дундаж гүйцэтгэл')),
+      el('div', null, el('b', null, `${s.viewed}/${s.lessons}`), el('span', { class: 'mut small' }, 'Үзсэн хичээл'))),
+    el('div', { class: 'card' }, el('h2', null, 'Гэрийн даалгавар'),
+      r.items.length ? el('div', { class: 'list' }, r.items.map(x => el('div', { class: 'item', onclick: () => go('pDetail', x.id) },
+        el('div', { class: 'grow' }, el('b', null, x.title), el('div', { class: 'mut small' },
+          `Хугацаа: ${fmt(x.due)}` + (x.submittedAt ? ` · Илгээсэн: ${fmt(x.submittedAt)}` : '')),
+          x.comment ? el('div', { class: 'small' }, '💬 ' + x.comment) : null),
+        el('div', { class: 'row', style: 'justify-content:flex-end' }, statusTag(x)))))
+        : el('p', { class: 'mut' }, 'Даалгавар алга.')),
+    el('div', { class: 'card' }, el('h2', null, 'Хичээл'),
+      r.lessons.length ? el('div', { class: 'list' }, r.lessons.map(l => el('div', { class: 'item', style: 'cursor:default' },
+        el('div', { class: 'grow' }, el('b', null, l.title), el('div', { class: 'mut small' }, fmtDate(l.date))),
+        l.viewedAt ? el('span', { class: 'tag ok' }, 'Үзсэн ' + fmtDate(l.viewedAt)) : el('span', { class: 'tag' }, 'Үзээгүй'))))
+        : el('p', { class: 'mut' }, 'Хичээл алга.')));
+}
+
+async function pDetail(id) {
+  loading();
+  const a = await run(() => call('pGet', { id }));
+  const per = {}; (a.result ? a.result.per : []).forEach(r => per[r.id] = r);
+  mount(el('p', null, el('button', { class: 'btn sm', onclick: () => go('pHome') }, '← Буцах')),
+    assignmentHeader(a), a.result ? resultSummary(a.result) : el('div', { class: 'card' }, el('b', { class: 'bad' }, 'Хараахан илгээгээгүй байна.')),
+    el('div', { class: 'card' }, el('h2', null, 'Бодлогууд'), a.questions.map((q, i) => {
+      const r = per[q.id];
+      return el('div', { class: 'q' },
+        el('div', { class: 'qh' }, el('span', null, `${i + 1}-р бодлого`), el('span', { class: 'mut small' }, `${typeName[q.type]} · ${num(q.points)} оноо`)),
+        q.text ? el('p', { class: 'qtext' }, q.text) : null,
+        r ? el('div', { class: 'small' }, q.type === 'photo' ? `Илгээсэн зураг: ${r.images}` : `Хүүхдийн хариу: ${r.answer || '—'}` + (q.unit ? ' ' + q.unit : '')) : null,
+        resultBlock(q, r));
+    })));
+}
+
+/* ═════════════ БАГШ — даалгавар ═════════════ */
+async function getClasses() {
+  const st = await call('tStudents'); S.cache.students = st;
+  return [...new Set(st.map(x => x.class))].sort((a, b) => a.localeCompare(b, 'mn', { numeric: true }));
+}
+
+async function tAssignments() {
+  loading();
+  const items = await run(() => call('tAssignments'));
+  mount(
+    el('div', { class: 'row' }, el('h1', { class: 'grow' }, 'Даалгавар'), el('button', { class: 'btn pri', onclick: () => go('tEdit') }, '+ Шинэ даалгавар')),
+    el('div', { class: 'card' }, items.length ? el('div', { class: 'list' }, items.map(a => el('div', { class: 'item', onclick: () => go('tReport', a.id) },
+      el('div', { class: 'grow' }, el('b', null, a.title), el('div', { class: 'mut small' },
+        `${a.classes.join(', ')} · ${a.questionCount} бодлого · Хугацаа: ${fmt(a.due)}`)),
+      a.status === 'draft' ? el('span', { class: 'tag' }, 'Ноорог') : el('span', { class: a.due < Date.now() ? 'tag' : 'tag pri' }, `${a.submittedCount}/${a.studentCount} илгээсэн`))))
+      : el('p', { class: 'mut' }, 'Даалгавар үүсгээгүй байна. Эхлээд «Сурагчид» хэсэгт ангиа нэмээд, дараа нь даалгавар үүсгэнэ үү.')));
+}
+
+function classPicker(all, selected) {
+  const sel = new Set(selected);
+  const wrap = el('div', { class: 'row' });
+  const extra = el('input', { placeholder: 'Өөр анги (жишээ: 9ё)', style: 'max-width:200px' });
+  const draw = () => {
+    const list = [...new Set([...all, ...sel])].sort((a, b) => a.localeCompare(b, 'mn', { numeric: true }));
+    wrap.replaceChildren(...list.map(c => el('label', { style: 'margin:0;display:flex;gap:6px;align-items:center;color:var(--ink);font-size:15px;border:1px solid var(--line);padding:6px 10px;border-radius:8px' },
+      el('input', { type: 'checkbox', checked: sel.has(c), onchange: e => e.target.checked ? sel.add(c) : sel.delete(c) }), c)),
+      extra, el('button', { class: 'btn sm', type: 'button', onclick: () => { const v = extra.value.trim(); if (v) { sel.add(v); extra.value = ''; draw(); } } }, 'Нэмэх'));
+  };
+  draw();
+  return { node: wrap, get value() { return [...sel]; } };
+}
+
+function newQ(type) { return { id: 'q' + Math.random().toString(36).slice(2, 10), type, points: type === 'photo' ? 2 : 1, answer: '', unit: '', tol: 2, options: 4, text: '' }; }
+
+async function tEdit(id) {
+  loading();
+  const [classes, a] = await run(() => Promise.all([getClasses(), id ? call('tGetAssignment', { id }) : null]));
+  const d = a || { title: '', classes: [], due: Date.now() + 3 * 86400000, allowLate: true, maxAttempts: 1, feedback: 'afterDue', description: '', link: '', questions: [newQ('num')], status: 'draft' };
+  if (!a) { const t = new Date(d.due); t.setHours(21, 0, 0, 0); d.due = t.getTime(); }
+  const f = {
+    title: el('input', { value: d.title, placeholder: 'жишээ: §12 Хурд — гэрийн даалгавар' }),
+    due: el('input', { type: 'datetime-local', value: toLocalInput(d.due) }),
+    allowLate: el('input', { type: 'checkbox', checked: d.allowLate }),
+    maxAttempts: el('select', null, [1, 2, 3, 5].map(n => el('option', { value: n, selected: n === d.maxAttempts }, n + ' удаа'))),
+    feedback: el('select', null, Object.entries(fbName).map(([k, t]) => el('option', { value: k, selected: k === d.feedback }, t))),
+    description: el('textarea', { value: d.description, placeholder: 'Заавар: жишээ нь «Сурах бичгийн 45-р хуудасны 1–5-р бодлого»' }),
+    link: el('input', { value: d.link, placeholder: 'https://… (Google Drive дээрх PDF гэх мэт, заавал биш)' }),
+  };
+  const cp = classPicker(classes, d.classes);
+  const qs = d.questions.map(q => Object.assign(newQ(q.type), q));
+  const qbox = el('div');
+  const drawQ = () => {
+    qbox.replaceChildren(...qs.map((q, i) => {
+      const set = k => e => { q[k] = e.target.value; };
+      const typeSel = el('select', { onchange: e => { q.type = e.target.value; q.answer = ''; drawQ(); } },
+        Object.entries(typeName).map(([k, t]) => el('option', { value: k, selected: k === q.type }, t)));
+      let sub;
+      if (q.type === 'num') sub = el('div', { class: 'sub' },
+        el('input', { value: q.answer, placeholder: 'Зөв хариу', inputmode: 'decimal', oninput: set('answer') }),
+        el('input', { value: q.unit, placeholder: 'Нэгж (м/с)', oninput: set('unit') }),
+        el('input', { value: q.tol, type: 'number', min: 0, max: 50, step: 0.5, title: 'Зөвшөөрөх алдаа, %', oninput: set('tol'), style: 'max-width:110px' }));
+      else if (q.type === 'mc') sub = el('div', { class: 'sub' },
+        el('select', { onchange: e => { q.options = Number(e.target.value); drawQ(); } }, [4, 5].map(n => el('option', { value: n, selected: q.options === n }, n + ' хувилбар'))),
+        el('select', { onchange: set('answer') }, el('option', { value: '' }, 'Зөв хариу…'),
+          'ABCDE'.slice(0, q.options).split('').map(L => el('option', { value: L, selected: q.answer === L }, L))));
+      else sub = el('div', { class: 'sub mut small', style: 'padding-top:9px' }, 'Сурагч бодолтын зураг илгээнэ, та гараар дүгнэнэ.');
+      return el('div', { class: 'qedit' },
+        el('div', { class: 'n' }, i + 1), typeSel,
+        el('input', { type: 'number', min: 0.5, step: 0.5, value: q.points, title: 'Оноо', oninput: set('points') }),
+        el('div', { class: 'wide' }, sub,
+          el('input', { value: q.text, placeholder: 'Бодлогын өгүүлбэр / тайлбар (заавал биш)', oninput: set('text'), style: 'margin-top:6px' })),
+        el('button', { class: 'btn sm danger del', type: 'button', title: 'Устгах', onclick: () => { qs.splice(i, 1); drawQ(); } }, '✕'));
+    }));
+  };
+  drawQ();
+  const bulkN = el('input', { type: 'number', min: 1, max: 40, value: 5, style: 'width:70px' });
+  const save = async status => {
+    const payload = {
+      id: d.id, title: f.title.value, classes: cp.value, due: new Date(f.due.value).getTime(),
+      allowLate: f.allowLate.checked, maxAttempts: Number(f.maxAttempts.value), feedback: f.feedback.value,
+      description: f.description.value, link: f.link.value, questions: qs, status,
+    };
+    const r = await run(() => call('tSaveAssignment', { a: payload }));
+    toast(status === 'published' ? 'Нийтэллээ — сурагчдад харагдана' : 'Ноорог хадгаллаа');
+    go('tReport', r.id);
+  };
+  mount(
+    el('p', null, el('button', { class: 'btn sm', onclick: () => id ? go('tReport', id) : go('tAssignments') }, '← Буцах')),
+    el('h1', null, id ? 'Даалгавар засах' : 'Шинэ даалгавар'),
+    el('div', { class: 'card' },
+      el('label', null, 'Нэр'), f.title,
+      el('label', null, 'Анги'), cp.node,
+      el('div', { class: 'row' },
+        el('div', { class: 'grow' }, el('label', null, 'Дуусах хугацаа'), f.due),
+        el('div', { class: 'grow' }, el('label', null, 'Илгээх эрх'), f.maxAttempts),
+        el('div', { class: 'grow' }, el('label', null, 'Дүн, зөв хариуг сурагчид харуулах'), f.feedback)),
+      el('label', { style: 'display:flex;gap:8px;align-items:center;color:var(--ink)' }, f.allowLate, 'Хугацаа дууссаны дараа хоцорч илгээхийг зөвшөөрөх (хоцорсон гэж тэмдэглэнэ)'),
+      el('label', null, 'Заавар'), f.description,
+      el('label', null, 'Материалын холбоос'), f.link),
+    el('div', { class: 'card' },
+      el('h2', null, 'Бодлого ба зөв хариу'),
+      el('p', { class: 'mut small' }, 'Тоон хариуг зөвшөөрөх алдааны (анхдагч 2%) хүрээнд автоматаар шалгана. Тоог 2.5, 3.2e5, 3.2*10^5 гэж бичиж болно.'),
+      el('div', { class: 'qedit qhead mut small', style: 'border-top:0;padding-bottom:0' }, el('div', null, '№'), el('div', null, 'Төрөл'), el('div', null, 'Оноо'),
+        el('div', { class: 'wide' }, 'Зөв хариу · Нэгж · Зөвшөөрөх алдаа (%)'), el('div')),
+      qbox,
+      el('div', { class: 'row', style: 'margin-top:10px' },
+        el('button', { class: 'btn sm', onclick: () => { qs.push(newQ('num')); drawQ(); } }, '+ Тоон'),
+        el('button', { class: 'btn sm', onclick: () => { qs.push(newQ('mc')); drawQ(); } }, '+ Сонгох'),
+        el('button', { class: 'btn sm', onclick: () => { qs.push(newQ('photo')); drawQ(); } }, '+ Зураг'),
+        el('span', { class: 'mut small', style: 'margin-left:12px' }, 'Олноор:'), bulkN,
+        el('button', { class: 'btn sm', onclick: () => { for (let i = 0; i < Math.min(40, Number(bulkN.value) || 0); i++) qs.push(newQ('num')); drawQ(); } }, 'тоон бодлого нэмэх'))),
+    el('div', { class: 'row' },
+      el('button', { class: 'btn', onclick: () => save('draft') }, 'Ноорог хадгалах'),
+      el('button', { class: 'btn pri', onclick: () => save('published') }, 'Нийтлэх')));
+}
+
+function cellFor(q, sub) {
+  if (!sub) return el('td', { class: 'c mut' }, '·');
+  const r = sub.per.find(x => x.id === q.id);
+  const title = q.type === 'photo' ? `${r.images} зураг` : `Хариу: ${r.answer || '—'}`;
+  if (r.status === 'pending') return el('td', { class: 'c warn', title }, '📷');
+  if (r.status === 'empty') return el('td', { class: 'c bad', title }, '—');
+  if (r.status === 'graded') return el('td', { class: 'c ' + (r.pts >= r.max ? 'ok' : r.pts > 0 ? 'warn' : 'bad'), title }, num(r.pts));
+  return el('td', { class: 'c ' + (r.status === 'correct' ? 'ok' : 'bad'), title }, r.status === 'correct' ? '✓' : '✗');
+}
+
+async function tReport(id) {
+  loading();
+  const R = await run(() => call('tReport', { id }));
+  const A = R.assignment, qs = A.questions;
+  const subBy = {}; R.subs.forEach(s => subBy[s.studentId] = s);
+  const classes = A.classes;
+  let filter = '';
+  const now = Date.now();
+  const stInfo = st => {
+    const s = subBy[st.id];
+    if (s) return s.late ? ['Хоцорсон', 'warn'] : ['Илгээсэн', 'ok'];
+    return now > A.due ? ['Илгээгээгүй', 'bad'] : ['Хүлээгдэж буй', ''];
+  };
+  const body = el('div');
+  const draw = () => {
+    const sts = R.students.filter(st => !filter || st.class === filter);
+    const subs = sts.map(st => subBy[st.id]).filter(Boolean);
+    const graded = subs.filter(s => s.total !== null);
+    const avg = graded.length ? graded.reduce((a, s) => a + s.total, 0) / graded.length : null;
+    const maxPts = qs.reduce((a, q) => a + Number(q.points), 0);
+    const pend = subs.reduce((a, s) => a + s.pending, 0);
+    const wrongPct = qs.map(q => {
+      const rs = subs.map(s => s.per.find(x => x.id === q.id)).filter(r => r && r.status !== 'pending');
+      if (!rs.length) return null;
+      return Math.round(rs.reduce((a, r) => a + (1 - (r.pts || 0) / r.max), 0) / rs.length * 100);
+    });
+    const late = subs.filter(s => s.late).length;
+    const missing = sts.filter(st => !subBy[st.id]).length;
+    body.replaceChildren(
+      el('div', { class: 'stat' },
+        el('div', null, el('b', null, `${subs.length}/${sts.length}`), el('span', { class: 'mut small' }, 'Илгээсэн')),
+        el('div', null, el('b', { class: late ? 'warn' : '' }, late), el('span', { class: 'mut small' }, 'Хоцорч илгээсэн')),
+        el('div', null, el('b', { class: missing && now > A.due ? 'bad' : '' }, missing), el('span', { class: 'mut small' }, 'Илгээгээгүй')),
+        el('div', null, el('b', null, avg === null ? '—' : `${num(avg)} / ${num(maxPts)}`), el('span', { class: 'mut small' }, 'Дундаж оноо')),
+        el('div', null, el('b', { class: pend ? 'warn' : '' }, pend), el('span', { class: 'mut small' }, 'Шалгах зураг'))),
+      el('div', { class: 'card' }, el('h2', null, 'Бодлого тус бүрээр алдсан хувь'),
+        el('div', { class: 'tbl' }, el('table', null,
+          el('tr', null, el('th', null, 'Бодлого'), el('th', null, 'Төрөл'), el('th', null, 'Зөв хариу'), el('th', null, 'Алдсан'), el('th', { style: 'width:40%' }, '')),
+          qs.map((q, i) => el('tr', null, el('td', null, `${i + 1}`), el('td', null, typeName[q.type]),
+            el('td', null, q.type === 'photo' ? '—' : q.answer + (q.unit ? ' ' + q.unit : '')),
+            el('td', { class: wrongPct[i] >= 50 ? 'bad' : '' }, wrongPct[i] === null ? '—' : wrongPct[i] + '%'),
+            el('td', null, el('div', { class: 'bar' }, el('i', { style: `width:${wrongPct[i] || 0}%` })))))))),
+      el('div', { class: 'card' }, el('h2', null, 'Сурагчдын дүн'),
+        el('p', { class: 'mut small' }, 'Мөр дээр дарж хариу, зургийг харж дүгнэнэ. ✓ зөв, ✗ буруу, 📷 шалгах зураг, тоо — багшийн өгсөн оноо.'),
+        el('div', { class: 'tbl' }, el('table', null,
+          el('tr', null, el('th', null, '№'), el('th', null, 'Анги'), el('th', null, 'Нэр'), el('th', null, 'Төлөв'), el('th', null, 'Илгээсэн'),
+            qs.map((q, i) => el('th', { class: 'c' }, i + 1)), el('th', { class: 'c' }, 'Нийт')),
+          sts.map((st, i) => {
+            const s = subBy[st.id]; const [t, c] = stInfo(st);
+            return el('tr', { class: s ? 'click' : '', onclick: s ? () => gradeModal(A, st, s, () => tReport(id)) : null },
+              el('td', null, i + 1), el('td', null, st.class), el('td', null, st.name),
+              el('td', null, el('span', { class: 'tag ' + c }, t)), el('td', { class: 'small' }, s ? fmt(s.submittedAt) : ''),
+              qs.map(q => cellFor(q, s)),
+              el('td', { class: 'c' }, s ? el('b', null, num(s.total) + (s.pending ? '+' : '')) : ''));
+          })))));
+  };
+  const exportXlsx = () => {
+    const head = ['№', 'Анги', 'Нэр', 'Нэвтрэх нэр', 'Төлөв', 'Илгээсэн', ...qs.map((q, i) => `${i + 1} (${num(q.points)})`), 'Нийт', 'Дээд оноо', 'Хувь', 'Тайлбар'];
+    const rows = R.students.filter(st => !filter || st.class === filter).map((st, i) => {
+      const s = subBy[st.id];
+      return [i + 1, st.class, st.name, st.username, stInfo(st)[0], s ? fmt(s.submittedAt) : '',
+        ...qs.map(q => { if (!s) return ''; const r = s.per.find(x => x.id === q.id); return r.pts === null ? 'шалгаагүй' : r.pts; }),
+        s ? s.total : 0, s ? s.max : qs.reduce((a, q) => a + Number(q.points), 0),
+        s && s.max ? Math.round(s.total / s.max * 1000) / 10 : 0, s ? s.comment : ''];
+    });
+    const name = (A.title + (filter ? ' ' + filter : '')).replace(/[\\/:*?"<>|]/g, ' ').slice(0, 80);
+    if (window.XLSX) {
+      const ws = XLSX.utils.aoa_to_sheet([[A.title], [`Хугацаа: ${fmt(A.due)}`], [], head, ...rows]);
+      ws['!cols'] = head.map((h, i) => ({ wch: i === 2 ? 26 : i === head.length - 1 ? 30 : 10 }));
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Дүн');
+      XLSX.writeFile(wb, name + '.xlsx');
+    } else {
+      const csv = [head, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+      const a = el('a', { href: URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' })), download: name + '.csv' });
+      document.body.append(a); a.click(); a.remove();
+    }
+  };
+  const fsel = classes.length > 1 ? el('select', { style: 'width:auto', onchange: e => { filter = e.target.value; draw(); } },
+    el('option', { value: '' }, 'Бүх анги'), classes.map(c => el('option', { value: c }, c))) : null;
+  draw();
+  mount(
+    el('p', null, el('button', { class: 'btn sm', onclick: () => go('tAssignments') }, '← Бүх даалгавар')),
+    el('div', { class: 'row' },
+      el('div', { class: 'grow' }, el('h1', { style: 'margin-bottom:2px' }, A.title),
+        el('div', { class: 'mut small' }, `${classes.join(', ')} · Хугацаа: ${fmt(A.due)} · Дүн харуулах: ${fbName[A.feedback]}`,
+          A.status === 'draft' ? el('span', { class: 'tag', style: 'margin-left:6px' }, 'Ноорог — сурагчдад харагдахгүй') : null)),
+      fsel,
+      el('button', { class: 'btn', onclick: exportXlsx }, '⬇ Excel'),
+      el('button', { class: 'btn', onclick: () => go('tEdit', id) }, 'Засах'),
+      el('button', { class: 'btn danger', onclick: async () => {
+        if (!confirm('Энэ даалгавар болон бүх сурагчийн илгээлт, зургийг устгах уу? Буцаах боломжгүй.')) return;
+        await run(() => call('tDeleteAssignment', { id })); toast('Устгалаа'); go('tAssignments');
+      } }, 'Устгах')),
+    el('div', { style: 'height:12px' }), body);
+}
+
+function gradeModal(A, st, s, after) {
+  const inputs = {};
+  const comment = el('textarea', { value: s.comment || '', placeholder: 'Сурагч болон эцэг эхэд харагдана' });
+  const rows = A.questions.map((q, i) => {
+    const r = s.per.find(x => x.id === q.id);
+    const man = s.manual[q.id];
+    const inp = el('input', { type: 'number', min: 0, max: q.points, step: 0.5, value: man === undefined ? '' : man,
+      placeholder: q.type === 'photo' ? 'оноо' : 'авто', style: 'width:90px' });
+    inputs[q.id] = inp;
+    let info;
+    if (q.type === 'photo') {
+      const th = el('div', { class: 'thumbs' });
+      const ids = s.files[q.id] || [];
+      if (!ids.length) th.append(el('span', { class: 'bad small' }, 'Зураг илгээгээгүй'));
+      ids.forEach(fid => {
+        const ph = el('span', { class: 'mut small' }, 'Ачааллаж байна…'); th.append(ph);
+        call('tImage', { fileId: fid }).then(d => ph.replaceWith(el('img', { src: d, onclick: () => zoom(d) }))).catch(() => ph.textContent = 'Зураг ачааллагдсангүй');
+      });
+      info = th;
+    } else {
+      info = el('div', { class: 'small' }, 'Хариу: ', el('b', null, (r.answer || '—') + (q.unit && r.answer ? ' ' + q.unit : '')),
+        ' · Зөв: ', q.answer + (q.unit ? ' ' + q.unit : ''), ' ',
+        el('span', { class: r.status === 'correct' ? 'ok' : r.status === 'wrong' ? 'bad' : '' }, r.status === 'correct' ? '✓' : r.status === 'wrong' ? '✗' : ''));
+    }
+    return el('div', { class: 'q' },
+      el('div', { class: 'qh' }, el('span', null, `${i + 1}. ${typeName[q.type]}`),
+        el('span', { class: 'row small' }, inp, `/ ${num(q.points)}`)),
+      q.text ? el('p', { class: 'qtext small mut' }, q.text) : null, info);
+  });
+  const ov = modal(
+    el('div', { class: 'row' }, el('h2', { class: 'grow', style: 'margin:0' }, `${st.name} · ${st.class}`),
+      el('button', { class: 'btn sm', onclick: () => ov.remove() }, '✕')),
+    el('p', { class: 'mut small' }, `Илгээсэн: ${fmt(s.submittedAt)}${s.late ? ' (хоцорсон)' : ''} · Илгээсэн тоо: ${s.attempts}. Тоон бодлогын оноог хоосон орхивол автомат дүн хэвээр үлдэнэ; бичвэл түүнийг дарж бичнэ.`),
+    rows,
+    el('label', null, 'Тайлбар'), comment,
+    el('div', { class: 'row', style: 'margin-top:12px' },
+      el('button', { class: 'btn pri', onclick: async () => {
+        const manual = {}; for (const k in inputs) manual[k] = inputs[k].value;
+        await run(() => call('tGrade', { subId: s.id, manual, comment: comment.value }));
+        toast('Хадгаллаа'); ov.remove(); after();
+      } }, 'Хадгалах'),
+      s.attempts >= A.maxAttempts ? el('button', { class: 'btn', onclick: async () => {
+        await run(() => call('tExtraAttempt', { subId: s.id })); toast('Дахин илгээх нэг эрх нэмлээ'); ov.remove(); after();
+      } }, '+1 илгээх эрх') : null));
+}
+
+/* ═════════════ БАГШ — хичээл ═════════════ */
+async function tLessons() {
+  loading();
+  const items = await run(() => call('tLessons'));
+  mount(
+    el('div', { class: 'row' }, el('h1', { class: 'grow' }, 'Хичээл (нөхөж үзэх)'), el('button', { class: 'btn pri', onclick: () => go('tLessonEdit') }, '+ Шинэ хичээл')),
+    el('div', { class: 'card' }, items.length ? el('div', { class: 'list' }, items.map(l => el('div', { class: 'item', onclick: () => go('tLessonView', l.id) },
+      el('div', { class: 'grow' }, el('b', null, l.title), el('div', { class: 'mut small' }, `${fmtDate(l.date)} · ${l.classes.join(', ')}`)),
+      l.status === 'draft' ? el('span', { class: 'tag' }, 'Ноорог') : el('span', { class: 'tag pri' }, `${l.viewCount}/${l.studentCount} үзсэн`))))
+      : el('p', { class: 'mut' }, 'Хичээл нийтлээгүй байна. Хичээл бүрийн тайлбар, YouTube бичлэг, PDF-ээ оруулбал тасалсан сурагч нөхөж үзнэ.')));
+}
+
+async function tLessonView(id) {
+  loading();
+  const l = await run(() => call('tGetLesson', { id }));
+  const seen = l.viewers.filter(v => v.at).length;
+  mount(
+    el('p', null, el('button', { class: 'btn sm', onclick: () => go('tLessons') }, '← Бүх хичээл')),
+    el('div', { class: 'row' }, el('div', { class: 'grow' }, el('h1', { style: 'margin-bottom:2px' }, l.title),
+      el('div', { class: 'mut small' }, `${fmtDate(l.date)} · ${l.classes.join(', ')}`, l.status === 'draft' ? el('span', { class: 'tag', style: 'margin-left:6px' }, 'Ноорог') : null)),
+      el('button', { class: 'btn', onclick: () => go('tLessonEdit', id) }, 'Засах'),
+      el('button', { class: 'btn danger', onclick: async () => {
+        if (!confirm('Энэ хичээл болон хавсаргасан файлуудыг устгах уу?')) return;
+        await run(() => call('tDeleteLesson', { id })); toast('Устгалаа'); go('tLessons');
+      } }, 'Устгах')),
+    el('div', { style: 'height:12px' }),
+    lessonBody(l, 'tFile'),
+    el('div', { class: 'card' }, el('h2', null, `Үзсэн сурагчид: ${seen}/${l.viewers.length}`),
+      el('div', { class: 'tbl' }, el('table', null, el('tr', null, el('th', null, 'Анги'), el('th', null, 'Нэр'), el('th', null, 'Үзсэн')),
+        l.viewers.map(v => el('tr', null, el('td', null, v.class), el('td', null, v.name),
+          el('td', { class: v.at ? 'ok' : 'mut' }, v.at ? fmt(v.at) : 'үзээгүй')))))));
+}
+
+async function tLessonEdit(id) {
+  loading();
+  const [classes, l] = await run(() => Promise.all([getClasses(), id ? call('tGetLesson', { id }) : null]));
+  const d = l || { title: '', date: Date.now(), classes: [], content: '', links: [], files: [], status: 'draft' };
+  const title = el('input', { value: d.title, placeholder: 'жишээ: §8 Жигд хувьсах хөдөлгөөн' });
+  const date = el('input', { type: 'date', value: toDateInput(d.date) });
+  const content = el('textarea', { value: d.content, style: 'min-height:160px', placeholder: 'Хичээлийн товч агуулга, гол томьёо, анхаарах зүйл…' });
+  const cp = classPicker(classes, d.classes);
+  const links = d.links.map(x => Object.assign({}, x));
+  const keep = d.files.map(f => Object.assign({}, f));
+  const added = [];
+  const lbox = el('div'), fbox = el('div');
+  const drawL = () => lbox.replaceChildren(...links.map((k, i) => el('div', { class: 'row', style: 'margin-bottom:6px' },
+    el('input', { class: 'grow', value: k.title, placeholder: 'Гарчиг (жишээ: Хичээлийн бичлэг)', oninput: e => k.title = e.target.value, style: 'flex:1 1 180px' }),
+    el('input', { class: 'grow', value: k.url, placeholder: 'https://youtu.be/… эсвэл Drive холбоос', oninput: e => k.url = e.target.value, style: 'flex:2 1 260px' }),
+    el('button', { class: 'btn sm danger', onclick: () => { links.splice(i, 1); drawL(); } }, '✕'))));
+  const drawF = () => fbox.replaceChildren(...[...keep, ...added].map(f => el('div', { class: 'row', style: 'margin-bottom:6px' },
+    el('span', { class: 'grow' }, '📎 ' + f.name, el('span', { class: 'mut small' }, ` (${Math.round(f.size / 1024)} КБ)`)),
+    el('button', { class: 'btn sm danger', onclick: () => { [keep, added].forEach(arr => { const j = arr.indexOf(f); if (j >= 0) arr.splice(j, 1); }); drawF(); } }, '✕'))));
+  drawL(); drawF();
+  const fileIn = el('input', { type: 'file', multiple: true, accept: '.pdf,image/*,.doc,.docx,.ppt,.pptx', onchange: async () => {
+    for (const file of fileIn.files) {
+      if (file.size > 8 * 1024 * 1024) { toast(file.name + ': 8 МБ-аас том файл оруулах боломжгүй. Drive холбоос ашиглана уу.', true); continue; }
+      toast('Хуулж байна: ' + file.name);
+      try {
+        const data = /^image\//.test(file.type) ? await resizeImage(file, 2000, 0.85) : await readDataUrl(file);
+        const name = /^image\//.test(file.type) ? file.name.replace(/\.\w+$/, '') + '.jpg' : file.name;
+        added.push(await run(() => call('tUploadLessonFile', { name, data })));
+        drawF();
+      } catch (e) {}
+    }
+    fileIn.value = '';
+  } });
+  const save = async status => {
+    const r = await run(() => call('tSaveLesson', { l: {
+      id: d.id, title: title.value, date: new Date(date.value + 'T12:00').getTime(), classes: cp.value,
+      content: content.value, links, fileIds: keep.map(f => f.id), newFiles: added, status } }));
+    toast(status === 'published' ? 'Нийтэллээ' : 'Ноорог хадгаллаа'); go('tLessonView', r.id);
+  };
+  mount(
+    el('p', null, el('button', { class: 'btn sm', onclick: () => id ? go('tLessonView', id) : go('tLessons') }, '← Буцах')),
+    el('h1', null, id ? 'Хичээл засах' : 'Шинэ хичээл'),
+    el('div', { class: 'card' },
+      el('div', { class: 'row' }, el('div', { style: 'flex:3 1 260px' }, el('label', null, 'Сэдэв'), title),
+        el('div', { style: 'flex:1 1 150px' }, el('label', null, 'Орсон өдөр'), date)),
+      el('label', null, 'Анги'), cp.node,
+      el('label', null, 'Агуулга'), content),
+    el('div', { class: 'card' }, el('h2', null, 'Видео ба холбоос'),
+      el('p', { class: 'mut small' }, 'YouTube холбоос хуудсан дээрээ шууд тоглогдоно. Google Drive файлын холбоосыг «Anyone with the link» болгож хуваалцана уу.'),
+      lbox, el('button', { class: 'btn sm', onclick: () => { links.push({ title: '', url: '' }); drawL(); } }, '+ Холбоос')),
+    el('div', { class: 'card' }, el('h2', null, 'Файл (PDF, зураг, 8 МБ хүртэл)'), fbox, fileIn),
+    el('div', { class: 'row' },
+      el('button', { class: 'btn', onclick: () => save('draft') }, 'Ноорог хадгалах'),
+      el('button', { class: 'btn pri', onclick: () => save('published') }, 'Нийтлэх')));
+}
+
+/* ═════════════ БАГШ — сурагчид ═════════════ */
+function credsModal(list, title) {
+  const doPrint = () => { document.body.classList.add('printing'); window.print(); setTimeout(() => document.body.classList.remove('printing'), 500); };
+  const xlsx = () => {
+    const rows = [['Анги', 'Нэр', 'Нэвтрэх нэр', 'Сурагчийн нууц үг', 'Эцэг эхийн код'], ...list.map(x => [x.class, x.name, x.username, x.password || '', x.parentCode || ''])];
+    if (window.XLSX) { const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), 'Нэвтрэх'); XLSX.writeFile(wb, 'Нэвтрэх мэдээлэл.xlsx'); }
+  };
+  const url = (list[0] && list[0].appUrl) || '';
+  const ov = modal(
+    el('div', { class: 'row noprint' }, el('h2', { class: 'grow', style: 'margin:0' }, title),
+      el('button', { class: 'btn sm', onclick: doPrint }, '🖨 Хуудас хэвлэх'),
+      el('button', { class: 'btn sm', onclick: xlsx }, '⬇ Excel'),
+      el('button', { class: 'btn sm', onclick: () => ov.remove() }, '✕')),
+    el('p', { class: 'bad small noprint' }, 'Нууц үгийг зөвхөн одоо харуулж байна — хэвлэх эсвэл Excel-ээр хадгалж аваарай. Мартвал «Нууц үг» эсвэл «Эцэг эхийн код» товчоор шинийг үүсгэнэ.'),
+    el('div', { class: 'slips' }, list.map(x => el('div', { class: 'slip' },
+      el('b', null, `${x.name} · ${x.class}`), el('br'),
+      'Нэвтрэх нэр: ', el('code', null, x.username), el('br'),
+      x.password ? ['Сурагчийн нууц үг: ', el('code', null, x.password), el('br')] : null,
+      x.parentCode ? ['Эцэг эхийн код: ', el('code', null, x.parentCode)] : null,
+      url ? el('div', { class: 'small mut', style: 'margin-top:4px;word-break:break-all' }, url) : null))));
+  return ov;
+}
+
+async function tStudents() {
+  loading();
+  const list = await run(() => call('tStudents'));
+  const classes = [...new Set(list.map(x => x.class))].sort((a, b) => a.localeCompare(b, 'mn', { numeric: true }));
+  let filter = classes[0] || '';
+  const tbl = el('div');
+  const draw = () => {
+    const rows = list.filter(x => !filter || x.class === filter);
+    tbl.replaceChildren(rows.length ? el('div', { class: 'tbl' }, el('table', null,
+      el('tr', null, el('th', null, '№'), el('th', null, 'Анги'), el('th', null, 'Нэр'), el('th', null, 'Нэвтрэх нэр'), el('th', null, '')),
+      rows.map((st, i) => el('tr', null, el('td', null, i + 1), el('td', null, st.class), el('td', null, st.name), el('td', null, el('code', null, st.username)),
+        el('td', null, el('div', { class: 'row', style: 'flex-wrap:nowrap' },
+          el('button', { class: 'btn sm', onclick: async () => { if (!confirm(st.name + ' — сурагчийн шинэ нууц үг үүсгэх үү?')) return; const r = await run(() => call('tResetPassword', { id: st.id })); credsModal([r], 'Шинэ нууц үг'); } }, 'Нууц үг'),
+          el('button', { class: 'btn sm', onclick: async () => { if (!confirm(st.name + ' — эцэг эхийн шинэ код үүсгэх үү? Хуучин код ажиллахаа болино.')) return; const r = await run(() => call('tResetPassword', { id: st.id, which: 'parent' })); credsModal([r], 'Эцэг эхийн шинэ код'); } }, 'Эцэг эхийн код'),
+          el('button', { class: 'btn sm', onclick: async () => {
+            const nm = prompt('Нэр', st.name); if (nm === null) return;
+            const cl = prompt('Анги', st.class); if (cl === null) return;
+            await run(() => call('tUpdateStudent', { id: st.id, name: nm, class: cl })); toast('Хадгаллаа'); tStudents();
+          } }, 'Засах'),
+          el('button', { class: 'btn sm danger', onclick: async () => { if (!confirm(st.name + ' — сурагчийг устгах уу?')) return; await run(() => call('tDeleteStudent', { id: st.id })); toast('Устгалаа'); tStudents(); } }, '✕')))))))
+      : el('p', { class: 'mut' }, 'Сурагч алга.'));
+  };
+  const cls = el('input', { placeholder: 'жишээ: 7а', style: 'max-width:160px' });
+  const names = el('textarea', { placeholder: 'Мөр бүрт нэг сурагч:\nБат-Эрдэнэ Тэмүүлэн\nДорж Анужин\n…', style: 'min-height:140px' });
+  const addBtn = el('button', { class: 'btn pri', onclick: async () => {
+    addBtn.disabled = true;
+    try { const r = await run(() => call('tAddStudents', { class: cls.value, names: names.value }));
+      names.value = ''; credsModal(r, `${r.length} сурагч нэмэгдлээ`); const l2 = await call('tStudents'); list.splice(0, list.length, ...l2); filter = r[0].class; rebuild(); }
+    finally { addBtn.disabled = false; }
+  } }, 'Нэмэх');
+  const fwrap = el('div', { class: 'row' });
+  const rebuild = () => {
+    const cs = [...new Set(list.map(x => x.class))].sort((a, b) => a.localeCompare(b, 'mn', { numeric: true }));
+    fwrap.replaceChildren(...cs.map(c => el('button', { class: 'btn sm' + (c === filter ? ' pri' : ''), onclick: () => { filter = c; rebuild(); } }, `${c} (${list.filter(x => x.class === c).length})`)));
+    draw();
+  };
+  rebuild();
+  mount(el('h1', null, 'Сурагчид'),
+    el('div', { class: 'card' }, el('h2', null, 'Сурагч нэмэх'),
+      el('p', { class: 'mut small' }, 'Систем сурагч бүрд нэвтрэх нэр, нууц үг, эцэг эхийн код үүсгэнэ. Хуудсыг хэвлээд хайчилж тараана.'),
+      el('label', null, 'Анги'), cls, el('label', null, 'Нэрс'), names, el('div', { style: 'margin-top:10px' }, addBtn)),
+    el('div', { class: 'card' }, el('h2', null, 'Ангиуд'), fwrap, el('div', { style: 'height:10px' }), tbl));
+}
+
+function tSettings() {
+  const o = el('input', { type: 'password' }), n = el('input', { type: 'password' }), n2 = el('input', { type: 'password' });
+  mount(el('h1', null, 'Тохиргоо'),
+    el('div', { class: 'card', style: 'max-width:420px' }, el('h2', null, 'Багшийн нууц үг солих'),
+      el('label', null, 'Одоогийн нууц үг'), o, el('label', null, 'Шинэ нууц үг'), n, el('label', null, 'Шинэ нууц үг (давтах)'), n2,
+      el('button', { class: 'btn pri', style: 'margin-top:12px', onclick: async () => {
+        if (n.value !== n2.value) return toast('Шинэ нууц үг таарахгүй байна', true);
+        await run(() => call('tChangePassword', { old: o.value, nw: n.value })); toast('Нууц үг солигдлоо'); o.value = n.value = n2.value = '';
+      } }, 'Солих')),
+    el('div', { class: 'card' }, el('h2', null, 'Өгөгдөл'),
+      el('p', { class: 'mut' }, 'Бүх өгөгдөл таны Google Drive дээрх «Гэрийн даалгаврын өгөгдөл» хүснэгтэд, сурагчдын зураг болон хичээлийн файл «Гэрийн даалгаврын систем — файлууд» хавтаст хадгалагдана. Хүснэгтийн баганыг гараар өөрчлөхгүй байхыг зөвлөе.')));
+}
+
+/* ═════════════ Эхлүүлэх ═════════════ */
+const VIEWS = { sList, sAssignment, sLessons, sLesson, pHome, pDetail,
+  tAssignments, tEdit, tReport, tLessons, tLessonView, tLessonEdit, tStudents, tSettings };
+async function start() {
+  if (!S.token) {
+    renderNav();
+    try { if ((await call('status')).needsTeacher) return viewTeacherInit(); }
+    catch (e) { return mount(el('div', { class: 'card login' }, el('h2', null, 'Сервертэй холбогдож чадсангүй'), el('p', { class: 'mut' }, e.message), el('button', { class: 'btn pri', onclick: () => start() }, 'Дахин оролдох'))); }
+    return viewLogin();
+  }
+  go(S.role === 'teacher' ? 'tAssignments' : S.role === 'parent' ? 'pHome' : 'sList');
+}
+start();
+</script>
+</body>
+</html>
