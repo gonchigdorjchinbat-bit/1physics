@@ -3,13 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
 <title>Гэрийн даалгавар — 1-р сургууль</title>
 <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-  :root{--bg:#f4f6f9;--card:#fff;--ink:#1c2430;--mut:#667085;--line:#e3e7ee;--pri:#1f5fbf;--pri2:#e8f0fc;
+  :root{--bg:#f2f5f7;--card:#fff;--ink:#0f2433;--mut:#5f7180;--line:#e2e8ee;--pri:#14707a;--pri2:#e2f1f2;--acc:#e9961b;
         --ok:#1a7f45;--okbg:#e5f5ec;--bad:#b42318;--badbg:#fdecea;--warn:#a15c00;--warnbg:#fff3dc;}
   *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
   header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
   .hwrap{max-width:1100px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
   .brand{font-weight:700;font-size:16px;margin-right:auto}
@@ -18,6 +20,7 @@
   nav button{background:none;border:0;padding:8px 12px;border-radius:8px;font:inherit;color:var(--mut);cursor:pointer}
   nav button.on{background:var(--pri2);color:var(--pri);font-weight:600}
   main{max-width:1100px;margin:0 auto;padding:16px}
+  body.landing-on header{display:none}
   .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
   h1{font-size:21px;margin:4px 0 12px} h2{font-size:17px;margin:0 0 10px} h3{font-size:15px;margin:0 0 6px}
   .mut{color:var(--mut)} .small{font-size:13px}
@@ -89,11 +92,44 @@
     .modal{max-width:none;padding:0}
     body.printing main{display:none}
   }
+
+  h1,h2,.brand,.hero h1{font-family:Montserrat,Inter,system-ui,sans-serif}
+  .btn{border-radius:12px}
+  .btn.pri{background:var(--pri);border-color:var(--pri)}
+  input,select,textarea{border-radius:10px}
+  .logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+  .logo-mark{width:40px;height:40px;border-radius:50%;border:2px solid var(--pri2);background:#fff;display:grid;place-items:center;flex:none}
+  .logo-text b{display:block;font-family:Montserrat,Inter,sans-serif;font-weight:800;font-size:15px;letter-spacing:.02em;color:var(--ink)}
+  .logo-text small{display:block;font-size:10.5px;font-weight:700;letter-spacing:.18em;color:var(--acc)}
+  .landing{max-width:460px;margin:0 auto;padding:22px 4px 40px}
+  .landing .logo{margin-bottom:34px}
+  .landing .logo-mark{width:58px;height:58px}
+  .landing .logo-text b{font-size:19px}
+  .landing .logo-text small{font-size:12px}
+  .eyebrow{display:flex;align-items:center;gap:10px;font-weight:800;font-size:13px;letter-spacing:.16em;color:var(--ink);margin-bottom:12px}
+  .eyebrow:before{content:"";width:26px;height:2px;background:var(--acc)}
+  .hero h1{font-size:44px;line-height:1.02;font-weight:900;margin:0 0 14px;letter-spacing:-.01em}
+  .hero h1 em{font-style:normal;color:var(--pri)}
+  .hero p{font-size:18px;color:var(--mut);margin:0 0 26px}
+  .lcard{background:#fff;border-radius:22px;padding:22px;box-shadow:0 10px 30px rgba(15,36,51,.07);border:1px solid var(--line)}
+  .lcard label{font-size:15px;font-weight:600;color:var(--ink);margin:4px 0 8px}
+  .lcard input{background:#eef3fb;border:1px solid #dbe4f0;border-radius:14px;padding:16px;font-size:16px;margin-bottom:16px}
+  .pwrap{position:relative}
+  .pwrap button{position:absolute;right:10px;top:9px;background:none;border:0;font:600 15px Inter,sans-serif;color:var(--pri);padding:8px;cursor:pointer}
+  .lcard .go{width:100%;padding:16px;border-radius:14px;font-size:17px;font-weight:700;font-family:Montserrat,Inter,sans-serif;background:var(--pri);border:0;color:#fff;cursor:pointer}
+  .lcard .go:disabled{background:#86a2aa}
+  .note{margin-top:18px;background:var(--pri);color:#e6f3f4;border-radius:18px;padding:16px 18px;font-size:14.5px;line-height:1.5}
+  .note b{color:#ffc163}
+  .roles{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+  .roles div{flex:1 1 120px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:13px;color:var(--mut)}
+  .roles b{display:block;color:var(--ink);font-size:14px}
+  @media(max-width:420px){.hero h1{font-size:36px}}
+  header #who{color:var(--mut);letter-spacing:.04em;font-weight:600}
 </style>
 </head>
 <body>
 <header class="noprint"><div class="hwrap">
-  <div class="brand">Гэрийн даалгавар<small id="who"></small></div>
+  <div class="brand"><div class="logo"><div class="logo-mark"><svg viewBox="0 0 40 40" width="100%" height="100%" aria-hidden="true"><path d="M8 24a12 12 0 0 1 24 0" fill="none" stroke="#e9961b" stroke-width="3" stroke-linecap="round"/><path d="M13 24a7 7 0 0 1 14 0" fill="none" stroke="#c4451c" stroke-width="3" stroke-linecap="round"/><text x="20" y="35" text-anchor="middle" font-family="Montserrat,Arial" font-weight="800" font-size="11" fill="#14707a">1</text></svg></div><div class="logo-text"><b>1-Р СУРГУУЛЬ</b><small id="who">ФИЗИК · ГЭРИЙН ДААЛГАВАР</small></div></div></div>
   <nav id="nav"></nav>
 </div></header>
 <main id="app"><div class="spin">Ачааллаж байна…</div></main>
@@ -211,9 +247,10 @@ const NAV = {
   teacher: [['tAssignments', 'Даалгавар'], ['tLessons', 'Хичээл'], ['tStudents', 'Сурагчид'], ['tSettings', 'Тохиргоо'], ['logout', 'Гарах']],
 };
 function renderNav(active) {
+  if (S.role) document.body.classList.remove('landing-on');
   const n = $('nav'); n.replaceChildren();
-  $('who').textContent = !S.role ? '' :
-    S.role === 'teacher' ? 'Багшийн самбар' :
+  $('who').textContent = !S.role ? 'ФИЗИК · ГЭРИЙН ДААЛГАВАР' :
+    S.role === 'teacher' ? 'БАГШИЙН САМБАР' :
     S.role === 'parent' ? `Эцэг эх · ${S.me.name} (${S.me.class})` : `${S.me.name} · ${S.me.class}`;
   (NAV[S.role] || []).forEach(([k, t]) => n.append(el('button', { class: k === active ? 'on' : '', onclick: () => k === 'logout' ? doLogout() : go(k) }, t)));
 }
@@ -230,8 +267,9 @@ function doLogout(silent) {
 /* ═════════════ Нэвтрэх ═════════════ */
 function viewTeacherInit() {
   const p1 = el('input', { type: 'password', autocomplete: 'new-password' }), p2 = el('input', { type: 'password', autocomplete: 'new-password' });
-  const btn = el('button', { class: 'btn pri', style: 'width:100%;margin-top:14px', type: 'submit' }, 'Үүсгэх');
-  mount(el('div', { class: 'card login' }, el('h1', null, 'Систем бэлэн боллоо'),
+  const btn = el('button', { class: 'go', type: 'submit' }, 'Үүсгэх');
+  document.body.classList.add('landing-on');
+  mount(el('div', { class: 'landing' }, logoBlock(), el('div', { class: 'hero' }, el('div', { class: 'eyebrow' }, 'АНХНЫ ТОХИРГОО'), el('h1', null, 'Систем ', el('em', null, 'бэлэн'), ' боллоо.')), el('div', { class: 'lcard' },
     el('p', { class: 'mut' }, 'Багшийн нууц үгээ үүсгэнэ үү (6+ тэмдэгт). Үүний дараа сурагчдаа нэмж эхэлнэ.'),
     el('form', { onsubmit: async e => {
       e.preventDefault();
@@ -240,35 +278,51 @@ function viewTeacherInit() {
       try { const r = await run(() => call('initTeacher', { password: p1.value }));
         Object.assign(S, { token: r.token, role: r.role, me: r.me }); saveSession(); go('tStudents'); }
       catch (err) { btn.disabled = false; }
-    } }, el('label', null, 'Нууц үг'), p1, el('label', null, 'Нууц үг (давтах)'), p2, btn)));
+    } }, el('label', null, 'Нууц үг'), p1, el('label', null, 'Нууц үг (давтах)'), p2, btn))));
+}
+const LOGO_SVG = '<svg viewBox="0 0 40 40" width="100%" height="100%" aria-hidden="true"><path d="M8 24a12 12 0 0 1 24 0" fill="none" stroke="#e9961b" stroke-width="3" stroke-linecap="round"/><path d="M13 24a7 7 0 0 1 14 0" fill="none" stroke="#c4451c" stroke-width="3" stroke-linecap="round"/><text x="20" y="35" text-anchor="middle" font-family="Montserrat,Arial" font-weight="800" font-size="11" fill="#14707a">1</text></svg>';
+function logoBlock() {
+  const m = el('div', { class: 'logo-mark' }); m.innerHTML = LOGO_SVG;
+  return el('div', { class: 'logo' }, m, el('div', { class: 'logo-text' }, el('b', null, '1-Р СУРГУУЛЬ'), el('small', null, 'ФИЗИК · ГЭРИЙН ДААЛГАВАР')));
 }
 function viewLogin() {
-  let role = 'student';
-  const box = el('div');
-  const draw = () => {
-    const u = el('input', { autocomplete: 'username', autocapitalize: 'none', spellcheck: 'false' });
-    const p = el('input', { type: 'password', autocomplete: 'current-password', autocapitalize: 'none' });
-    const btn = el('button', { class: 'btn pri', style: 'width:100%;margin-top:14px', type: 'submit' }, 'Нэвтрэх');
-    const form = el('form', { onsubmit: async e => {
-      e.preventDefault(); btn.disabled = true;
+  const u = el('input', { autocomplete: 'username', autocapitalize: 'none', spellcheck: 'false', placeholder: 'жишээ: 7a-05' });
+  const p = el('input', { type: 'password', autocomplete: 'current-password', autocapitalize: 'none', style: 'padding-right:80px' });
+  const eye = el('button', { type: 'button', onclick: () => { const s = p.type === 'password'; p.type = s ? 'text' : 'password'; eye.textContent = s ? 'Нуух' : 'Харах'; } }, 'Харах');
+  const btn = el('button', { class: 'go', type: 'submit' }, 'Нэвтрэх');
+  const form = el('form', { onsubmit: async e => {
+    e.preventDefault();
+    const un = u.value.trim().toLowerCase(), pw = p.value.trim();
+    if (!un || !pw) return toast('Нэвтрэх нэр, нууц үгээ бичнэ үү', true);
+    btn.disabled = true; btn.textContent = 'Нэвтэрч байна…';
+    // Багш: «багш» / «teacher». Эцэг эхийн код 8 тэмдэгт, сурагчийн нууц үг 6 тэмдэгт.
+    const order = ['багш', 'teacher'].includes(un) ? ['teacher'] : pw.length >= 8 ? ['parent', 'student'] : ['student', 'parent'];
+    let lastErr;
+    for (const role of order) {
       try {
-        const r = await run(() => call('login', { role, username: u.value, password: p.value }));
-        Object.assign(S, { token: r.token, role: r.role, me: r.me }); saveSession(); start();
-      } catch (err) { btn.disabled = false; }
-    } },
-      role !== 'teacher' ? [el('label', null, role === 'parent' ? 'Хүүхдийн нэвтрэх нэр' : 'Нэвтрэх нэр'), u] : null,
-      el('label', null, role === 'parent' ? 'Эцэг эхийн код' : 'Нууц үг'), p, btn);
-    box.replaceChildren(
-      el('div', { class: 'tabs' }, [['student', 'Сурагч'], ['parent', 'Эцэг эх'], ['teacher', 'Багш']].map(([k, t]) =>
-        el('button', { class: role === k ? 'on' : '', type: 'button', onclick: () => { role = k; draw(); } }, t))),
-      form,
-      el('p', { class: 'mut small', style: 'margin-top:14px' },
-        role === 'parent' ? 'Эцэг эхийн кодыг багшаас авна. Энэ эрхээр зөвхөн хүүхдийнхээ явцыг харна.' :
-        role === 'student' ? 'Нэвтрэх нэр, нууц үгээ багшаасаа авна.' : ''));
-    setTimeout(() => (role === 'teacher' ? p : u).focus(), 50);
-  };
-  draw();
-  mount(el('div', { class: 'card login' }, el('h1', null, 'Нэвтрэх'), box));
+        const r = await call('login', { role, username: un, password: pw });
+        Object.assign(S, { token: r.token, role: r.role, me: r.me }); saveSession(); return start();
+      } catch (err) { lastErr = err; if (!/буруу/.test(err.message)) break; }
+    }
+    toast(lastErr ? lastErr.message : 'Алдаа гарлаа', true);
+    btn.disabled = false; btn.textContent = 'Нэвтрэх';
+  } },
+    el('label', null, 'Нэвтрэх нэр'), u,
+    el('label', null, 'Нууц үг'), el('div', { class: 'pwrap' }, p, eye), btn);
+  document.body.classList.add('landing-on');
+  mount(el('div', { class: 'landing' },
+    logoBlock(),
+    el('div', { class: 'hero' },
+      el('div', { class: 'eyebrow' }, 'ГЭРИЙН ДААЛГАВАР · УТСААР'),
+      el('h1', null, 'Физикээ ', el('em', null, 'гэрээсээ'), ' үргэлжлүүл.'),
+      el('p', null, 'Даалгавар илгээх, дүнгээ харах, тасалсан хичээлээ нөхөх — бүгд нэг дор.')),
+    el('div', { class: 'lcard' }, form),
+    el('div', { class: 'note' }, el('b', null, 'Санамж. '), 'Нэвтрэх нэр, нууц үгээ багшаасаа авна. Эцэг эх хүүхдийнхээ нэвтрэх нэр болон ', el('b', null, 'эцэг эхийн кодоор'), ' нэвтэрч явцыг нь харна. Нууц үгээ мартвал багшдаа хандаарай.'),
+    el('div', { class: 'roles' },
+      el('div', null, el('b', null, 'Сурагч'), 'Даалгавар хийх, дүн харах'),
+      el('div', null, el('b', null, 'Эцэг эх'), 'Хүүхдийн явц хянах'),
+      el('div', null, el('b', null, 'Багш'), 'Нэвтрэх нэр: багш'))));
+  setTimeout(() => u.focus(), 50);
 }
 
 /* ═════════════ СУРАГЧ ═════════════ */
